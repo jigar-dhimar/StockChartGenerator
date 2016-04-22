@@ -1,0 +1,293 @@
+<!--Jigar Dhimar and Marley Slade
+    Assignment 3
+		Participation: 50% 50%-->
+<!DOCTYPE HTML>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="HW3.css">
+	<title>Compare Tech Prices</title>
+	<script src="js/Chart.js"></script>
+
+	<script language="javascript">
+
+		//creat global chart variables
+		var canvasWidth = window.innerWidth*.8;
+		var canvasHeight = window.innerHeight/2.67;
+	  	var myGraph;
+	  	var myGraph2;
+		var canvContext;
+		var canvContext2;
+
+		//amazon data variables
+		var amazonPriceData = []
+		var amazonVolumeData = []
+
+		//facebook data variables
+		var facebookPriceData = []
+		var facebookVolumeData = []
+
+		//apple data variables
+		var applePriceData = []
+		var appleVolumeData = []
+
+		//label holder
+		var priceLabels = []
+
+
+		//holds price data for each company 
+		//in the JSON files the price data is referred to as "Close"
+		var priceData = {
+		  	labels : [],
+		  	datasets : [
+			  	//amazon price data stored here
+			  	{
+				  fillColor : "rgba(2,132,130,0.2)",
+				  strokeColor : "rgba(2,132,130,1)",
+				  data : []
+			  	},
+
+			  	//facebook price data stored here
+			  	{
+				  fillColor : "rgba(122,186,122,0.2)",
+				  strokeColor : "rgba(122,186,122,1)",
+				  data : []
+			  	},
+
+			  	//apple price data stored here
+			  	{
+				  fillColor : "rgba(183, 110, 184,0.2)",
+				  strokeColor : "rgba(183,110,184,1)",
+				  data : []
+			  	}
+
+		  	]
+	  	};
+
+	  	//holds the volume data for each company 
+	  	var volumeData = {
+		  	labels : [],
+		  	datasets : [
+
+			  	//amazon volume data stored here
+			  	{
+				  fillColor : "rgba(2,132,130,0.5)",
+				  strokeColor : "rgba(2,132,130,1)",
+				  data : []
+			  	},
+
+			  	//facebook volume data stored here
+			  	{
+				  fillColor : "rgba(122,186,122,0.5)",
+				  strokeColor : "rgba(122,186,122,1)",
+				  data : []
+			  	},
+
+			  	//apple volume data stored here
+			  	{
+				  fillColor : "rgba(183,110,184,0.4)",
+				  strokeColor : "rgba(183,110,184,1)",
+				  data : []
+			  	}
+
+		  	]
+	  	};
+
+	  	//gets info from Google JSON file
+	  	//stores relevant data into volumeData variable and priceData variable
+	  	function getAmazonData(){
+			var jsonhttp1 = new XMLHttpRequest();
+	   		jsonhttp1.onreadystatechange = function() {
+	        if (jsonhttp1.readyState == 4 && jsonhttp1.status == 200) {
+	            var myObj = JSON.parse(jsonhttp1.responseText);
+	            
+	            //adds relevant data to volumeData and priceData
+	            volumeData.labels = myObj.Date
+	            amazonVolumeData = myObj.Volume
+	            amazonPriceData = myObj.Close
+	        	}
+	    	};
+	    	jsonhttp1.open("GET", "amazon.json", true);
+	    	jsonhttp1.send();
+    	}
+
+
+    	//gets info from Facebook JSON file
+	  	//stores relevant data into volumeData variable and priceData variable
+		function getFacebookData(){
+			var jsonhttp1 = new XMLHttpRequest();
+	   		jsonhttp1.onreadystatechange = function() {
+	        if (jsonhttp1.readyState == 4 && jsonhttp1.status == 200) {
+	            var myObj = JSON.parse(jsonhttp1.responseText);
+
+	            //adds relevant data to volumeData and priceData
+	            volumeData.labels = myObj.Date
+	            facebookVolumeData = myObj.Volume
+	            facebookPriceData = myObj.Close
+	        	}
+	    	};
+	    	jsonhttp1.open("GET", "facebook.json", true);
+	    	jsonhttp1.send();
+    	}
+
+    	//gets info from Apple JSON file
+	  	//stores relevant data into volumeData variable and priceData variable
+    	function getAppleData(){
+			var jsonhttp1 = new XMLHttpRequest();
+	   		jsonhttp1.onreadystatechange = function() {
+	        if (jsonhttp1.readyState == 4 && jsonhttp1.status == 200) {
+	            var myObj = JSON.parse(jsonhttp1.responseText);
+	           
+				//adds relevant data to volumeData and priceData      
+	            volumeData.labels = myObj.Date
+	            appleVolumeData = myObj.Volume
+	            applePriceData = myObj.Close
+	        	}
+	    	};
+	    	jsonhttp1.open("GET", "apple.json", true);
+	    	jsonhttp1.send();
+
+    	}
+
+
+		function prepareContext(){
+
+			//turn tooltips off
+			Chart.defaults.global.showTooltips = false; 
+
+			// get the object to draw line chart on 
+			canvContext = document.getElementById("canvas").getContext("2d"); 
+			
+			// set canvas to defined size
+			canvContext.canvas.width = canvasWidth;								
+			canvContext.canvas.height = canvasHeight;
+
+			// get the object to draw the bar chart on 
+			canvContext2 = document.getElementById("canvas2").getContext("2d");
+
+			// set canvas to defined size 
+			canvContext2.canvas.width = canvasWidth;								
+			canvContext2.canvas.height = canvasHeight;
+		}
+
+	  	function drawChart(){
+
+	  		// draw line chart on canvas
+			myGraph = new Chart(canvContext).Line(priceData);
+
+			// draw bar chart on canvas2
+			myGraph2 = new Chart(canvContext2).Bar(volumeData, {barDatasetSpacing : 6}); 
+			canvContext.canvas.width = canvasWidth;
+			canvContext.canvas.height = canvasHeight;
+			canvContext2.canvas.width = canvasWidth;
+			canvContext2.canvas.height = canvasHeight;
+
+	 	}
+
+	 	function onStart(){
+	 		prepareContext()
+			
+			//gets the data from JSON files 	 		
+	 		getAmazonData()
+	 		getAppleData()
+	 		getFacebookData()
+	 		
+	 		//needed to make the labels on the 
+	 		//price data graph look like they're not there
+	 		for(i=0; i<=52; i++){
+            	priceLabels.push("");
+        	}
+        	priceData.labels = priceLabels
+        	
+        	//draws charts to screen 
+        	drawChart()
+
+
+
+	 	}
+
+
+	 	//function to toggle graphs on and off 
+	 	function toggle(button){
+
+	 		switch(button.value){
+
+	 			//if the value of the button is "ON"
+	 			case "ON":
+
+	 				//changes value of button to "OFF"
+	 				button.value = "OFF";
+
+	 				if (button.id == "Amazon"){
+
+	 					//sets data fields for amazon to empty 
+	 					priceData.datasets[0].data = []
+	 					volumeData.datasets[0].data = []
+	 				}
+
+	 				else if (button.id == "Facebook"){
+
+	 					//sets data fields for facebook to empty 
+	 					priceData.datasets[1].data = []
+	 					volumeData.datasets[1].data = []
+	 				}
+
+	 				else if (button.id == "Apple"){
+
+	 					//sets data fields for apple to empty 
+	 					priceData.datasets[2].data = []
+	 					volumeData.datasets[2].data = []
+	 				}
+
+	 				drawChart()
+	 				break;
+
+	 			//if the value of the button is "OFF"
+	 			case "OFF":
+
+	 				//changes the value of the button to "ON"
+	 				button.value = "ON";
+	 				if (button.id == "Amazon"){
+
+	 					//puts back amazon's data into priceData and volumeData
+	 					priceData.datasets[0].data = amazonPriceData
+	 					volumeData.datasets[0].data = amazonVolumeData
+	 				}
+
+	 				else if (button.id == "Facebook"){
+
+	 					//puts back facebook's data into priceData and volumeData
+	 					priceData.datasets[1].data = facebookPriceData
+	 					volumeData.datasets[1].data =facebookVolumeData
+
+	 				}
+
+	 				else if (button.id == "Apple"){
+
+	 					//puts back apple's data into priceData and volumeData
+	 					priceData.datasets[2].data = applePriceData
+	 					volumeData.datasets[2].data = appleVolumeData
+	 				}
+	 				drawChart()
+	 				break;
+	 		}
+	 	}
+
+	</script>
+</head>
+
+<body onload="onStart()">
+	<h1> Compare Tech Prices </h1>
+	<div>
+		<canvas id="canvas"></canvas>
+	</div>
+	<div>
+		<canvas id="canvas2"></canvas>
+	</div >
+	<h3>Price (upper graph in $) and Trade Volume (lower graph in million shares)</h3>
+	<div class="buttons3">
+		<button type="button" id="Amazon" value="OFF" onClick="toggle(this)">Amazon</button>
+		<button type="button" id="Facebook" value="OFF" onClick="toggle(this)">Facebook</button>
+		<button type="button" id="Apple" value="OFF" onClick="toggle(this)">Apple</button>
+	</div>
+</body>
+</html>

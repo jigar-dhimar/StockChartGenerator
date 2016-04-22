@@ -1,0 +1,2 @@
+# DynamicStockChartGenerator
+# StockChartGenerator
